@@ -1,16 +1,12 @@
+// src/App.jsx
 import { useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Float, OrbitControls, Stage, Stars } from "@react-three/drei";
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Single‑file React portfolio component
-// Drop this into a fresh Vite React app as src/App.jsx (or pages/index.jsx in Next.js)
-// Tailwind: run `npm i -D tailwindcss postcss autoprefixer && npx tailwindcss init -p`
-// Add the Tailwind directives to index.css: @tailwind base; @tailwind components; @tailwind utilities;
-// Enable GitHub Pages via `npm run build` + `gh-pages` or GitHub Actions (see instructions in chat).
+// Data (edit these to customize your portfolio)
 // ──────────────────────────────────────────────────────────────────────────────
-
 const nav = [
   { id: "about", label: "About" },
   { id: "skills", label: "Skills" },
@@ -24,12 +20,12 @@ const data = {
   name: "Rashi Agrawal",
   role: "Software Engineer • Distributed Systems • ML-inclined",
   blurb:
-      "Software engineer with 4+ years of full‑stack and cloud‑native experience. I design reliable microservices, data pipelines, and delightful UIs—and I’m deepening ML skills to build intelligent, data‑driven products.",
+      "Software engineer with 4+ years of full-stack and cloud-native experience. I design reliable microservices, data pipelines, and delightful UIs—and I’m deepening ML skills to build intelligent, data-driven products.",
   location: "Philadelphia, PA, USA",
   email: "agrras@seas.upenn.edu",
   phone: "+1 445-225-9110",
   linkedin: "https://www.linkedin.com/in/agrawalrashi",
-  resumeUrl: "#", // replace with a public link to your PDF (e.g., GitHub repo raw URL)
+  resumeUrl: "#", // replace with your PDF link
   skills: [
     "Java",
     "C/C++",
@@ -57,7 +53,7 @@ const data = {
       period: "May 2025 – Aug 2025",
       bullets: [
         "Built an Android app (XML + Hasura GraphQL) replacing Excel macros; cut setup time by 99%.",
-        "Deployed on a Kia EV9 demoing WellSense; streamed seat‑specific programs to 4 ESP32s via Bluetooth, with USB control + custom heater signals.",
+        "Deployed on a Kia EV9 demoing WellSense; streamed seat-specific programs to 4 ESP32s via Bluetooth, with USB control + custom heater signals.",
         "Functionality currently under discussion for patenting.",
       ],
     },
@@ -67,9 +63,9 @@ const data = {
       location: "Bengaluru, India",
       period: "Jul 2020 – Aug 2024",
       bullets: [
-        "Led a team of 4 to build a record‑retention tool on DataLake; 80% faster retrieval and improved compliance.",
+        "Led a team of 4 to build a record-retention tool on DataLake; 80% faster retrieval and improved compliance.",
         "Integrated vendor workpaper system via REST, reducing legacy dependency by 75%; added SSO for security.",
-        "Managed a 7‑dev team delivering an agile‑auditing platform; 25% project turnaround improvement.",
+        "Managed a 7-dev team delivering an agile-auditing platform; 25% project turnaround improvement.",
       ],
     },
     {
@@ -87,7 +83,7 @@ const data = {
   projects: [
     {
       name: "PennOS",
-      caption: "UNIX‑like OS (C)",
+      caption: "UNIX-like OS (C)",
       details:
           "Implements a basic priority scheduler, FAT filesystem, and user shell with threads, interrupts, and process lifecycle handling.",
       link: "#",
@@ -117,15 +113,26 @@ const data = {
   ],
 };
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Motion helpers
+// ──────────────────────────────────────────────────────────────────────────────
 const fade = {
   hidden: { opacity: 0, y: 8 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+// ──────────────────────────────────────────────────────────────────────────────
+// UI primitives
+// ──────────────────────────────────────────────────────────────────────────────
 function Section({ id, title, children }) {
   return (
       <section id={id} className="scroll-mt-24 py-14 lg:py-20">
-        <motion.div variants={fade} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
+        <motion.div
+            variants={fade}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+        >
           <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
           <div className="mt-6">{children}</div>
         </motion.div>
@@ -156,21 +163,36 @@ function Card({ heading, sub, right, children }) {
   );
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Navbar
+// ──────────────────────────────────────────────────────────────────────────────
 function Navbar() {
   return (
       <div className="sticky top-0 z-40 backdrop-blur border-b bg-white/70">
         <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between">
-          <a href="#" className="font-semibold tracking-tight">{data.name}</a>
+          <a href="#" className="font-semibold tracking-tight">
+            {data.name}
+          </a>
           <nav className="hidden md:flex gap-5 text-sm">
-            {nav.map(item => (
+            {nav.map((item) => (
                 <a key={item.id} href={`#${item.id}`} className="text-neutral-600 hover:text-neutral-900">
                   {item.label}
                 </a>
             ))}
           </nav>
           <div className="flex gap-2">
-            <a href={`mailto:${data.email}`} className="rounded-xl border px-3 py-1.5 text-sm hover:bg-neutral-50">Email</a>
-            <a href={data.linkedin} target="_blank" className="rounded-xl border px-3 py-1.5 text-sm hover:bg-neutral-50" rel="noreferrer">
+            <a
+                href={`mailto:${data.email}`}
+                className="rounded-xl border px-3 py-1.5 text-sm hover:bg-neutral-50"
+            >
+              Email
+            </a>
+            <a
+                href={data.linkedin}
+                target="_blank"
+                className="rounded-xl border px-3 py-1.5 text-sm hover:bg-neutral-50"
+                rel="noreferrer"
+            >
               LinkedIn
             </a>
           </div>
@@ -179,20 +201,32 @@ function Navbar() {
   );
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+/** 3D Hero (React Three Fiber) */
+// ──────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────────────
+// Glowing Torus + Hero3D
+// ──────────────────────────────────────────────────────────────────────────────
 function FloatingTorus(props) {
   const ref = useRef();
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
     if (ref.current) {
-      ref.current.rotation.x = t * 0.25;
-      ref.current.rotation.y = t * 0.35;
+      ref.current.rotation.x = t * 0.3;
+      ref.current.rotation.y = t * 0.4;
     }
   });
   return (
-      <Float floatIntensity={1.5} rotationIntensity={0.6} speed={1.2}>
+      <Float floatIntensity={2.2} rotationIntensity={0.8} speed={1.5}>
         <mesh ref={ref} {...props} castShadow receiveShadow>
           <torusKnotGeometry args={[1, 0.35, 220, 32]} />
-          <meshStandardMaterial metalness={0.6} roughness={0.25} />
+          <meshStandardMaterial
+              color="hotpink"
+              emissive="deeppink"
+              emissiveIntensity={2.5}
+              metalness={0.2}
+              roughness={0.3}
+          />
         </mesh>
       </Float>
   );
@@ -201,20 +235,26 @@ function FloatingTorus(props) {
 function Hero3D() {
   return (
       <div className="relative">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-indigo-50 via-white to-white" />
+        {/* Gradient overlay (make partially transparent so canvas shows through) */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-indigo-50/50 via-white/70 to-white/80" />
         <div className="absolute inset-0 -z-10">
-          <Canvas camera={{ position: [0, 0, 4.2], fov: 45 }} shadows>
+          <Canvas camera={{ position: [0, 0, 5], fov: 45 }} shadows>
             <ambientLight intensity={0.7} />
-            <directionalLight position={[4, 6, 5]} intensity={1.0} castShadow />
-            <Stars radius={80} depth={40} count={2500} factor={4} saturation={0} fade />
-            <Stage intensity={0.4} environment={null} shadows="contact">
-              <FloatingTorus position={[0, 0.15, 0]} />
+            <directionalLight position={[4, 6, 5]} intensity={1.5} castShadow />
+            <Stars radius={120} depth={60} count={5000} factor={5} fade />
+            <Stage intensity={0.6} environment={null} shadows="contact">
+              <FloatingTorus position={[0, 0.2, 0]} />
             </Stage>
             <Environment preset="city" />
-            <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.7} />
+            <OrbitControls
+                enableZoom={false}
+                enablePan={false}
+                autoRotate
+                autoRotateSpeed={1.2}
+            />
           </Canvas>
         </div>
-        <div className="mx-auto max-w-5xl px-4 pt-16 pb-10">
+        <div className="mx-auto max-w-5xl px-4 pt-16 pb-10 relative z-10">
           <motion.div variants={fade} initial="hidden" animate="show">
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
@@ -226,10 +266,7 @@ function Hero3D() {
               {data.blurb}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                  href={data.resumeUrl}
-                  className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50"
-              >
+              <a href={data.resumeUrl} className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50">
                 View Résumé
               </a>
               <a
@@ -245,6 +282,9 @@ function Hero3D() {
   );
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Sections
+// ──────────────────────────────────────────────────────────────────────────────
 function Skills() {
   const chunks = useMemo(() => {
     const out = [];
@@ -268,12 +308,7 @@ function Experience() {
   return (
       <div className="grid gap-4">
         {data.experience.map((e) => (
-            <Card
-                key={e.company + e.title}
-                heading={`${e.title} · ${e.company}`}
-                sub={`${e.location}`}
-                right={e.period}
-            >
+            <Card key={e.company + e.title} heading={`${e.title} · ${e.company}`} sub={`${e.location}`} right={e.period}>
               <ul className="list-disc ml-5 mt-2 space-y-1">
                 {e.bullets.map((b, i) => (
                     <li key={i}>{b}</li>
@@ -332,10 +367,20 @@ function Footer() {
             <a href={`mailto:${data.email}`} className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50">
               {data.email}
             </a>
-            <a href={data.linkedin} target="_blank" rel="noreferrer" className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50">
+            <a
+                href={data.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50"
+            >
               LinkedIn Profile
             </a>
-            <a href="https://github.com/new" target="_blank" rel="noreferrer" className="rounded-xl bg-neutral-900 text-white px-4 py-2 text-sm hover:bg-neutral-800">
+            <a
+                href="https://github.com/new"
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl bg-neutral-900 text-white px-4 py-2 text-sm hover:bg-neutral-800"
+            >
               Deploy to GitHub Pages
             </a>
           </div>
@@ -344,6 +389,9 @@ function Footer() {
   );
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// App
+// ──────────────────────────────────────────────────────────────────────────────
 export default function Portfolio() {
   return (
       <div className="min-h-screen bg-white text-neutral-900">
@@ -353,8 +401,8 @@ export default function Portfolio() {
           <Section id="about" title="About">
             <p>
               I focus on dependable systems and thoughtful UX. Recent work spans Android + GraphQL for automotive demos,
-              audit platforms at enterprise scale, and infra upgrades (Kubernetes, Terraform, Elasticsearch). I enjoy turning
-              gnarly constraints into elegant products.
+              audit platforms at enterprise scale, and infra upgrades (Kubernetes, Terraform, Elasticsearch). I enjoy
+              turning gnarly constraints into elegant products.
             </p>
           </Section>
           <Section id="skills" title="Skills">
