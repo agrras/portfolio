@@ -1,12 +1,19 @@
-// src/App.jsx
 import { useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, OrbitControls, Stage, Stars } from "@react-three/drei";
+import {
+  Environment,
+  Float,
+  OrbitControls,
+  Stars,
+  Sparkles,
+  Text,
+  MeshReflectorMaterial,
+} from "@react-three/drei";
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Data (edit these to customize your portfolio)
-// ──────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
+   Data (customize freely)
+   ──────────────────────────────────────────────────────────────────────────── */
 const nav = [
   { id: "about", label: "About" },
   { id: "skills", label: "Skills" },
@@ -113,17 +120,17 @@ const data = {
   ],
 };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Motion helpers
-// ──────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
+   Motion helpers
+   ──────────────────────────────────────────────────────────────────────────── */
 const fade = {
   hidden: { opacity: 0, y: 8 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// UI primitives
-// ──────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
+   UI primitives
+   ──────────────────────────────────────────────────────────────────────────── */
 function Section({ id, title, children }) {
   return (
       <section id={id} className="scroll-mt-24 py-14 lg:py-20">
@@ -133,7 +140,9 @@ function Section({ id, title, children }) {
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
         >
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+            {title}
+          </h2>
           <div className="mt-6">{children}</div>
         </motion.div>
       </section>
@@ -156,16 +165,24 @@ function Card({ heading, sub, right, children }) {
             <h3 className="text-lg font-semibold">{heading}</h3>
             {sub && <p className="text-sm text-neutral-600 mt-0.5">{sub}</p>}
           </div>
-          {right && <span className="text-sm text-neutral-600 whitespace-nowrap">{right}</span>}
+          {right && (
+              <span className="text-sm text-neutral-600 whitespace-nowrap">
+            {right}
+          </span>
+          )}
         </div>
-        {children && <div className="mt-3 text-[15px] leading-7 text-neutral-800">{children}</div>}
+        {children && (
+            <div className="mt-3 text-[15px] leading-7 text-neutral-800">
+              {children}
+            </div>
+        )}
       </div>
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Navbar
-// ──────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
+   Navbar
+   ──────────────────────────────────────────────────────────────────────────── */
 function Navbar() {
   return (
       <div className="sticky top-0 z-40 backdrop-blur border-b bg-white/70">
@@ -175,7 +192,11 @@ function Navbar() {
           </a>
           <nav className="hidden md:flex gap-5 text-sm">
             {nav.map((item) => (
-                <a key={item.id} href={`#${item.id}`} className="text-neutral-600 hover:text-neutral-900">
+                <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    className="text-neutral-600 hover:text-neutral-900"
+                >
                   {item.label}
                 </a>
             ))}
@@ -201,59 +222,159 @@ function Navbar() {
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-/** 3D Hero (React Three Fiber) */
-// ──────────────────────────────────────────────────────────────────────────────
-// ──────────────────────────────────────────────────────────────────────────────
-// Glowing Torus + Hero3D
-// ──────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
+   3D Hero elements
+   ──────────────────────────────────────────────────────────────────────────── */
 function FloatingTorus(props) {
   const ref = useRef();
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
     if (ref.current) {
-      ref.current.rotation.x = t * 0.3;
-      ref.current.rotation.y = t * 0.4;
+      ref.current.rotation.x = t * 0.35;
+      ref.current.rotation.y = t * 0.55;
     }
   });
   return (
-      <Float floatIntensity={2.2} rotationIntensity={0.8} speed={1.5}>
+      <Float floatIntensity={2.2} rotationIntensity={0.9} speed={1.6}>
         <mesh ref={ref} {...props} castShadow receiveShadow>
-          <torusKnotGeometry args={[1, 0.35, 220, 32]} />
+          <torusKnotGeometry args={[1.1, 0.42, 260, 36]} />
           <meshStandardMaterial
               color="hotpink"
               emissive="deeppink"
-              emissiveIntensity={2.5}
-              metalness={0.2}
-              roughness={0.3}
+              emissiveIntensity={3.0}
+              metalness={0.25}
+              roughness={0.25}
           />
         </mesh>
       </Float>
   );
 }
 
-function Hero3D() {
+function FloatingBits() {
   return (
-      <div className="relative">
-        {/* Gradient overlay (make partially transparent so canvas shows through) */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-indigo-50/50 via-white/70 to-white/80" />
-        <div className="absolute inset-0 -z-10">
-          <Canvas camera={{ position: [0, 0, 5], fov: 45 }} shadows>
-            <ambientLight intensity={0.7} />
-            <directionalLight position={[4, 6, 5]} intensity={1.5} castShadow />
-            <Stars radius={120} depth={60} count={5000} factor={5} fade />
-            <Stage intensity={0.6} environment={null} shadows="contact">
-              <FloatingTorus position={[0, 0.2, 0]} />
-            </Stage>
-            <Environment preset="city" />
-            <OrbitControls
-                enableZoom={false}
-                enablePan={false}
-                autoRotate
-                autoRotateSpeed={1.2}
+      <group>
+        <Float floatIntensity={1.4} rotationIntensity={0.6} speed={1.1}>
+          <mesh
+              position={[-2.4, 0.9, -0.6]}
+              rotation={[0.5, 0.2, 0]}
+              castShadow
+          >
+            <icosahedronGeometry args={[0.55, 1]} />
+            <meshStandardMaterial
+                color="#6366f1"
+                metalness={0.5}
+                roughness={0.2}
             />
-          </Canvas>
-        </div>
+          </mesh>
+        </Float>
+        <Float floatIntensity={1.2} rotationIntensity={0.7} speed={1.3}>
+          <mesh
+              position={[2.2, -0.2, -0.8]}
+              rotation={[0.2, 0.6, 0.3]}
+              castShadow
+          >
+            <boxGeometry args={[0.7, 0.7, 0.7]} />
+            <meshStandardMaterial
+                color="#22c55e"
+                metalness={0.35}
+                roughness={0.35}
+            />
+          </mesh>
+        </Float>
+        <Float floatIntensity={1.0} rotationIntensity={0.5} speed={1.0}>
+          <mesh position={[0, -1.1, -0.6]} rotation={[0.2, 0.3, 0]}>
+            <ringGeometry args={[0.6, 0.9, 64]} />
+            <meshStandardMaterial
+                color="#f59e0b"
+                metalness={0.2}
+                roughness={0.25}
+            />
+          </mesh>
+        </Float>
+      </group>
+  );
+}
+
+function InitialsText() {
+  return (
+      <Float floatIntensity={1.2} rotationIntensity={0.3} speed={1.1}>
+        <Text
+            position={[0, -0.9, 0]}
+            fontSize={0.6}
+            letterSpacing={0.02}
+            color="#111827"
+            outlineWidth={0.02}
+            outlineColor="#a78bfa"
+            anchorX="center"
+            anchorY="middle"
+        >
+          RA
+        </Text>
+      </Float>
+  );
+}
+
+function GroundReflector() {
+  return (
+      <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, -1.6, 0]}
+          receiveShadow
+      >
+        <planeGeometry args={[20, 20]} />
+        <MeshReflectorMaterial
+            mirror={0.6}
+            blur={[300, 100]}
+            mixBlur={1}
+            resolution={1024}
+            metalness={0.4}
+            roughness={0.6}
+            depthScale={0.4}
+            minDepthThreshold={0.4}
+            maxDepthThreshold={1.4}
+            color="#f8fafc"
+        />
+      </mesh>
+  );
+}
+
+function Hero3D() {
+  const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  return (
+      <div className="relative min-h-[460px] md:min-h-[560px]">
+        {!prefersReduced && (
+            <Canvas
+                camera={{ position: [0, 0, 5], fov: 45 }}
+                shadows
+                gl={{ antialias: true, alpha: true }}
+                style={{ position: "absolute", inset: 0 }}
+            >
+              <ambientLight intensity={0.8} />
+              <directionalLight position={[4, 6, 5]} intensity={1.6} castShadow />
+
+              <Sparkles count={180} scale={[10, 4, 4]} size={2} speed={0.55} noise={0.3} />
+              <Stars radius={140} depth={80} count={4200} factor={5.2} fade />
+
+              <FloatingTorus position={[0, 0.25, 0]} />
+              <FloatingBits />
+              <InitialsText />
+              <GroundReflector />
+
+              <OrbitControls
+                  enableZoom={false}
+                  enablePan={false}
+                  autoRotate
+                  autoRotateSpeed={1.3}
+              />
+              <Environment preset="city" />
+            </Canvas>
+        )}
+
+        {/* Foreground content */}
         <div className="mx-auto max-w-5xl px-4 pt-16 pb-10 relative z-10">
           <motion.div variants={fade} initial="hidden" animate="show">
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
@@ -262,11 +383,14 @@ function Hero3D() {
             </span>
             </h1>
             <p className="mt-3 text-lg text-neutral-700">{data.role}</p>
-            <p className="mt-4 max-w-2xl text-neutral-800 leading-7 bg-white/60 backdrop-blur-sm rounded-2xl p-3 inline-block shadow-sm">
+            <p className="mt-4 max-w-2xl text-neutral-800 leading-7 bg-white/70 backdrop-blur-sm rounded-2xl p-3 inline-block shadow-sm">
               {data.blurb}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href={data.resumeUrl} className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50">
+              <a
+                  href={data.resumeUrl}
+                  className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50"
+              >
                 View Résumé
               </a>
               <a
@@ -282,13 +406,14 @@ function Hero3D() {
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Sections
-// ──────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
+   Sections
+   ──────────────────────────────────────────────────────────────────────────── */
 function Skills() {
   const chunks = useMemo(() => {
     const out = [];
-    for (let i = 0; i < data.skills.length; i += 8) out.push(data.skills.slice(i, i + 8));
+    for (let i = 0; i < data.skills.length; i += 8)
+      out.push(data.skills.slice(i, i + 8));
     return out;
   }, []);
   return (
@@ -308,7 +433,12 @@ function Experience() {
   return (
       <div className="grid gap-4">
         {data.experience.map((e) => (
-            <Card key={e.company + e.title} heading={`${e.title} · ${e.company}`} sub={`${e.location}`} right={e.period}>
+            <Card
+                key={e.company + e.title}
+                heading={`${e.title} · ${e.company}`}
+                sub={`${e.location}`}
+                right={e.period}
+            >
               <ul className="list-disc ml-5 mt-2 space-y-1">
                 {e.bullets.map((b, i) => (
                     <li key={i}>{b}</li>
@@ -324,19 +454,29 @@ function Projects() {
   return (
       <div className="grid md:grid-cols-2 gap-4">
         {data.projects.map((p) => (
-            <div key={p.name} className="rounded-2xl border bg-white/70 backdrop-blur p-6 shadow-sm">
+            <div
+                key={p.name}
+                className="rounded-2xl border bg-white/70 backdrop-blur p-6 shadow-sm"
+            >
               <div className="flex items-baseline justify-between gap-2">
                 <div>
                   <h3 className="text-lg font-semibold tracking-tight">{p.name}</h3>
                   <p className="text-sm text-neutral-600">{p.caption}</p>
                 </div>
                 {p.link !== "#" && (
-                    <a href={p.link} target="_blank" rel="noreferrer" className="text-sm text-indigo-700 hover:underline">
+                    <a
+                        href={p.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm text-indigo-700 hover:underline"
+                    >
                       Visit ↗
                     </a>
                 )}
               </div>
-              <p className="mt-3 text-[15px] leading-7 text-neutral-800">{p.details}</p>
+              <p className="mt-3 text-[15px] leading-7 text-neutral-800">
+                {p.details}
+              </p>
             </div>
         ))}
       </div>
@@ -364,7 +504,10 @@ function Footer() {
             <p className="text-neutral-600 mt-1">Based in {data.location}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <a href={`mailto:${data.email}`} className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50">
+            <a
+                href={`mailto:${data.email}`}
+                className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50"
+            >
               {data.email}
             </a>
             <a
@@ -389,9 +532,9 @@ function Footer() {
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// App
-// ──────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
+   App
+   ──────────────────────────────────────────────────────────────────────────── */
 export default function Portfolio() {
   return (
       <div className="min-h-screen bg-white text-neutral-900">
