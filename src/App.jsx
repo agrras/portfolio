@@ -1,18 +1,16 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import {
   Environment,
-  Float,
   OrbitControls,
   Stars,
   Sparkles,
-  Text,
-  MeshReflectorMaterial,
+  GradientTexture,
 } from "@react-three/drei";
 
 /* ────────────────────────────────────────────────────────────────────────────
-   Data (customize freely)
+   Data (edit freely)
    ──────────────────────────────────────────────────────────────────────────── */
 const nav = [
   { id: "about", label: "About" },
@@ -32,25 +30,11 @@ const data = {
   email: "agrras@seas.upenn.edu",
   phone: "+1 445-225-9110",
   linkedin: "https://www.linkedin.com/in/agrawalrashi",
-  resumeUrl: "#", // replace with your PDF link
+  resumeUrl: "#",
   skills: [
-    "Java",
-    "C/C++",
-    "Python",
-    "Rust",
-    "JavaScript/TypeScript",
-    "React/Redux",
-    "Node.js",
-    "Spring Boot",
-    "Kubernetes",
-    "Docker",
-    "AWS",
-    "RabbitMQ",
-    "Elasticsearch",
-    "SQL / NoSQL",
-    "CI/CD",
-    "PyTorch",
-    "TensorFlow",
+    "Java","C/C++","Python","Rust","JavaScript/TypeScript","React/Redux","Node.js",
+    "Spring Boot","Kubernetes","Docker","AWS","RabbitMQ","Elasticsearch","SQL / NoSQL",
+    "CI/CD","PyTorch","TensorFlow",
   ],
   experience: [
     {
@@ -121,7 +105,7 @@ const data = {
 };
 
 /* ────────────────────────────────────────────────────────────────────────────
-   Motion helpers
+   Motion helper
    ──────────────────────────────────────────────────────────────────────────── */
 const fade = {
   hidden: { opacity: 0, y: 8 },
@@ -151,7 +135,7 @@ function Section({ id, title, children }) {
 
 function Chip({ children }) {
   return (
-      <span className="inline-flex items-center rounded-full border px-3 py-1 text-sm leading-6 bg-white/60 backdrop-blur shadow-sm">
+      <span className="inline-flex items-center rounded-full border border-white/15 px-3 py-1 text-sm leading-6 bg-white/5 text-neutral-200 backdrop-blur shadow-sm">
       {children}
     </span>
   );
@@ -159,20 +143,20 @@ function Chip({ children }) {
 
 function Card({ heading, sub, right, children }) {
   return (
-      <div className="group rounded-2xl border bg-white/70 backdrop-blur p-6 shadow-sm hover:shadow-xl transition-all duration-300 will-change-transform hover:-translate-y-0.5">
+      <div className="group rounded-2xl border border-white/10 bg-white/5 text-neutral-100 backdrop-blur p-6 shadow-sm hover:shadow-xl transition-all duration-300 will-change-transform hover:-translate-y-0.5">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
           <div>
             <h3 className="text-lg font-semibold">{heading}</h3>
-            {sub && <p className="text-sm text-neutral-600 mt-0.5">{sub}</p>}
+            {sub && <p className="text-sm text-neutral-300 mt-0.5">{sub}</p>}
           </div>
           {right && (
-              <span className="text-sm text-neutral-600 whitespace-nowrap">
+              <span className="text-sm text-neutral-400 whitespace-nowrap">
             {right}
           </span>
           )}
         </div>
         {children && (
-            <div className="mt-3 text-[15px] leading-7 text-neutral-800">
+            <div className="mt-3 text-[15px] leading-7 text-neutral-200">
               {children}
             </div>
         )}
@@ -181,12 +165,12 @@ function Card({ heading, sub, right, children }) {
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   Navbar
+   Navbar (dark)
    ──────────────────────────────────────────────────────────────────────────── */
 function Navbar() {
   return (
-      <div className="sticky top-0 z-40 backdrop-blur border-b bg-white/70">
-        <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-40 backdrop-blur border-b border-white/10 bg-[#0b1020]/70">
+        <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between text-neutral-100">
           <a href="#" className="font-semibold tracking-tight">
             {data.name}
           </a>
@@ -195,7 +179,7 @@ function Navbar() {
                 <a
                     key={item.id}
                     href={`#${item.id}`}
-                    className="text-neutral-600 hover:text-neutral-900"
+                    className="text-neutral-300 hover:text-white"
                 >
                   {item.label}
                 </a>
@@ -204,14 +188,14 @@ function Navbar() {
           <div className="flex gap-2">
             <a
                 href={`mailto:${data.email}`}
-                className="rounded-xl border px-3 py-1.5 text-sm hover:bg-neutral-50"
+                className="rounded-xl border border-white/15 px-3 py-1.5 text-sm hover:bg-white/10"
             >
               Email
             </a>
             <a
                 href={data.linkedin}
                 target="_blank"
-                className="rounded-xl border px-3 py-1.5 text-sm hover:bg-neutral-50"
+                className="rounded-xl border border-white/15 px-3 py-1.5 text-sm hover:bg-white/10"
                 rel="noreferrer"
             >
               LinkedIn
@@ -223,122 +207,30 @@ function Navbar() {
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   3D Hero elements
+   Milky Way band (subtle gradient plane)
    ──────────────────────────────────────────────────────────────────────────── */
-function FloatingTorus(props) {
-  const ref = useRef();
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (ref.current) {
-      ref.current.rotation.x = t * 0.35;
-      ref.current.rotation.y = t * 0.55;
-    }
-  });
-  return (
-      <Float floatIntensity={2.2} rotationIntensity={0.9} speed={1.6}>
-        <mesh ref={ref} {...props} castShadow receiveShadow>
-          <torusKnotGeometry args={[1.1, 0.42, 260, 36]} />
-          <meshStandardMaterial
-              color="hotpink"
-              emissive="deeppink"
-              emissiveIntensity={3.0}
-              metalness={0.25}
-              roughness={0.25}
-          />
-        </mesh>
-      </Float>
-  );
-}
-
-function FloatingBits() {
-  return (
-      <group>
-        <Float floatIntensity={1.4} rotationIntensity={0.6} speed={1.1}>
-          <mesh
-              position={[-2.4, 0.9, -0.6]}
-              rotation={[0.5, 0.2, 0]}
-              castShadow
-          >
-            <icosahedronGeometry args={[0.55, 1]} />
-            <meshStandardMaterial
-                color="#6366f1"
-                metalness={0.5}
-                roughness={0.2}
-            />
-          </mesh>
-        </Float>
-        <Float floatIntensity={1.2} rotationIntensity={0.7} speed={1.3}>
-          <mesh
-              position={[2.2, -0.2, -0.8]}
-              rotation={[0.2, 0.6, 0.3]}
-              castShadow
-          >
-            <boxGeometry args={[0.7, 0.7, 0.7]} />
-            <meshStandardMaterial
-                color="#22c55e"
-                metalness={0.35}
-                roughness={0.35}
-            />
-          </mesh>
-        </Float>
-        <Float floatIntensity={1.0} rotationIntensity={0.5} speed={1.0}>
-          <mesh position={[0, -1.1, -0.6]} rotation={[0.2, 0.3, 0]}>
-            <ringGeometry args={[0.6, 0.9, 64]} />
-            <meshStandardMaterial
-                color="#f59e0b"
-                metalness={0.2}
-                roughness={0.25}
-            />
-          </mesh>
-        </Float>
-      </group>
-  );
-}
-
-function InitialsText() {
-  return (
-      <Float floatIntensity={1.2} rotationIntensity={0.3} speed={1.1}>
-        <Text
-            position={[0, -0.9, 0]}
-            fontSize={0.6}
-            letterSpacing={0.02}
-            color="#111827"
-            outlineWidth={0.02}
-            outlineColor="#a78bfa"
-            anchorX="center"
-            anchorY="middle"
-        >
-          RA
-        </Text>
-      </Float>
-  );
-}
-
-function GroundReflector() {
+function MilkyWayBand() {
   return (
       <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, -1.6, 0]}
-          receiveShadow
+          position={[0, 0.3, -1.2]}
+          rotation={[0.1, -0.35, 0.2]}
+          renderOrder={-10}
       >
-        <planeGeometry args={[20, 20]} />
-        <MeshReflectorMaterial
-            mirror={0.6}
-            blur={[300, 100]}
-            mixBlur={1}
-            resolution={1024}
-            metalness={0.4}
-            roughness={0.6}
-            depthScale={0.4}
-            minDepthThreshold={0.4}
-            maxDepthThreshold={1.4}
-            color="#f8fafc"
-        />
+        <planeGeometry args={[14, 6]} />
+        <meshBasicMaterial transparent opacity={0.24}>
+          <GradientTexture
+              stops={[0, 0.45, 0.75, 1]}
+              colors={["#000000", "#27306b", "#5a3b86", "#000000"]}
+          />
+        </meshBasicMaterial>
       </mesh>
   );
 }
 
-function Hero3D() {
+/* ────────────────────────────────────────────────────────────────────────────
+   Hero (Dark, subtle Hogwarts x Milky Way)
+   ──────────────────────────────────────────────────────────────────────────── */
+function HeroCosmos() {
   const prefersReduced =
       typeof window !== "undefined" &&
       window.matchMedia &&
@@ -348,29 +240,37 @@ function Hero3D() {
       <div className="relative min-h-[460px] md:min-h-[560px]">
         {!prefersReduced && (
             <Canvas
-                camera={{ position: [0, 0, 5], fov: 45 }}
-                shadows
-                gl={{ antialias: true, alpha: true }}
+                camera={{ position: [0, 0, 5.2], fov: 45 }}
+                gl={{ antialias: true, alpha: false }}
                 style={{ position: "absolute", inset: 0 }}
             >
-              <ambientLight intensity={0.8} />
-              <directionalLight position={[4, 6, 5]} intensity={1.6} castShadow />
+              {/* Deep night background */}
+              <color attach="background" args={["#0b1020"]} />
 
-              <Sparkles count={180} scale={[10, 4, 4]} size={2} speed={0.55} noise={0.3} />
-              <Stars radius={140} depth={80} count={4200} factor={5.2} fade />
+              {/* Low-key lighting */}
+              <ambientLight intensity={0.35} />
+              <directionalLight position={[3, 5, 6]} intensity={0.6} />
 
-              <FloatingTorus position={[0, 0.25, 0]} />
-              <FloatingBits />
-              <InitialsText />
-              <GroundReflector />
+              {/* Milky Way + very light star drift */}
+              <MilkyWayBand />
+              <Stars radius={180} depth={120} count={1800} factor={3.0} fade speed={0.12} />
+              <Sparkles
+                  count={60}
+                  scale={[12, 5, 5]}
+                  size={1.2}
+                  speed={0.08}
+                  noise={0.15}
+                  opacity={0.35}
+              />
 
+              {/* Gentle camera drift */}
               <OrbitControls
                   enableZoom={false}
                   enablePan={false}
                   autoRotate
-                  autoRotateSpeed={1.3}
+                  autoRotateSpeed={0.15}
               />
-              <Environment preset="city" />
+              <Environment preset="night" />
             </Canvas>
         )}
 
@@ -378,24 +278,24 @@ function Hero3D() {
         <div className="mx-auto max-w-5xl px-4 pt-16 pb-10 relative z-10">
           <motion.div variants={fade} initial="hidden" animate="show">
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 to-violet-300">
               {data.name}
             </span>
             </h1>
-            <p className="mt-3 text-lg text-neutral-700">{data.role}</p>
-            <p className="mt-4 max-w-2xl text-neutral-800 leading-7 bg-white/70 backdrop-blur-sm rounded-2xl p-3 inline-block shadow-sm">
+            <p className="mt-3 text-lg text-neutral-300">{data.role}</p>
+            <p className="mt-4 max-w-2xl text-neutral-200/90 leading-7 bg-white/5 backdrop-blur-sm rounded-2xl p-3 inline-block shadow-sm">
               {data.blurb}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                   href={data.resumeUrl}
-                  className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50"
+                  className="rounded-xl border border-white/15 px-4 py-2 text-sm hover:bg-white/10"
               >
                 View Résumé
               </a>
               <a
                   href="#projects"
-                  className="rounded-xl bg-neutral-900 text-white px-4 py-2 text-sm hover:bg-neutral-800"
+                  className="rounded-xl bg_white/10 text-white px-4 py-2 text-sm hover:bg-white/20"
               >
                 View Work
               </a>
@@ -456,25 +356,27 @@ function Projects() {
         {data.projects.map((p) => (
             <div
                 key={p.name}
-                className="rounded-2xl border bg-white/70 backdrop-blur p-6 shadow-sm"
+                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 shadow-sm"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <div>
-                  <h3 className="text-lg font-semibold tracking-tight">{p.name}</h3>
-                  <p className="text-sm text-neutral-600">{p.caption}</p>
+                  <h3 className="text-lg font-semibold tracking-tight">
+                    {p.name}
+                  </h3>
+                  <p className="text-sm text-neutral-300">{p.caption}</p>
                 </div>
                 {p.link !== "#" && (
                     <a
                         href={p.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-sm text-indigo-700 hover:underline"
+                        className="text-sm text-indigo-300 hover:underline"
                     >
                       Visit ↗
                     </a>
                 )}
               </div>
-              <p className="mt-3 text-[15px] leading-7 text-neutral-800">
+              <p className="mt-3 text-[15px] leading-7 text-neutral-200">
                 {p.details}
               </p>
             </div>
@@ -487,7 +389,12 @@ function Education() {
   return (
       <div className="grid gap-4">
         {data.education.map((ed) => (
-            <Card key={ed.school} heading={ed.school} sub={ed.degree} right={ed.period}>
+            <Card
+                key={ed.school}
+                heading={ed.school}
+                sub={ed.degree}
+                right={ed.period}
+            >
               <p className="mt-2">{ed.details}</p>
             </Card>
         ))}
@@ -497,16 +404,18 @@ function Education() {
 
 function Footer() {
   return (
-      <footer id="contact" className="border-t mt-12">
+      <footer id="contact" className="border-t border-white/10 mt-12">
         <div className="mx-auto max-w-5xl px-4 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <p className="font-semibold">Let’s build something reliable & beautiful.</p>
-            <p className="text-neutral-600 mt-1">Based in {data.location}</p>
+            <p className="font-semibold">
+              Let’s build something reliable & beautiful.
+            </p>
+            <p className="text-neutral-400 mt-1">Based in {data.location}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <a
                 href={`mailto:${data.email}`}
-                className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50"
+                className="rounded-xl border border-white/15 px-4 py-2 text-sm hover:bg-white/10"
             >
               {data.email}
             </a>
@@ -514,7 +423,7 @@ function Footer() {
                 href={data.linkedin}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50"
+                className="rounded-xl border border-white/15 px-4 py-2 text-sm hover:bg-white/10"
             >
               LinkedIn Profile
             </a>
@@ -522,7 +431,7 @@ function Footer() {
                 href="https://github.com/new"
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-xl bg-neutral-900 text-white px-4 py-2 text-sm hover:bg-neutral-800"
+                className="rounded-xl bg-white/10 text-white px-4 py-2 text-sm hover:bg-white/20"
             >
               Deploy to GitHub Pages
             </a>
@@ -533,19 +442,21 @@ function Footer() {
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   App
+   App (dark theme)
    ──────────────────────────────────────────────────────────────────────────── */
 export default function Portfolio() {
   return (
-      <div className="min-h-screen bg-white text-neutral-900">
+      <div className="min-h-screen bg-[#0b1020] text-neutral-100">
         <Navbar />
-        <Hero3D />
+        <HeroCosmos />
         <main className="mx-auto max-w-5xl px-4">
           <Section id="about" title="About">
             <p>
-              I focus on dependable systems and thoughtful UX. Recent work spans Android + GraphQL for automotive demos,
-              audit platforms at enterprise scale, and infra upgrades (Kubernetes, Terraform, Elasticsearch). I enjoy
-              turning gnarly constraints into elegant products.
+              I focus on dependable systems and thoughtful UX. Recent work spans
+              Android + GraphQL for automotive demos, audit platforms at
+              enterprise scale, and infra upgrades (Kubernetes, Terraform,
+              Elasticsearch). I enjoy turning gnarly constraints into elegant
+              products.
             </p>
           </Section>
           <Section id="skills" title="Skills">
